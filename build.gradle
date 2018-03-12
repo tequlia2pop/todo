@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+version = 0.1
+
+repositories {
+	mavenLocal()
+}
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+}
+
+// 编译 Java 文件时采用 UTF-8 编码
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
