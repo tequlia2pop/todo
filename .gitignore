@@ -108,3 +108,6 @@ local.properties
 # For Eclipse
 .project
 .classpath
+
+# For Gralde multiproject builds
+build/
