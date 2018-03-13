@@ -1,6 +1,7 @@
-apply plugin: 'java'
+apply plugin: 'war'
+apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
 
-version = 0.1
+version = 0.2
 
 repositories {
 	mavenLocal()
@@ -8,9 +9,16 @@ repositories {
 
 dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    // providedCompile 'javax.servlet:servlet-api:2.5'//, 'javax.servlet.jsp:jsp-api:2.1'
+    runtime 'javax.servlet:jstl:1.2', 'taglibs:standard:1.1.2'
 }
 
 // 编译 Java 文件时采用 UTF-8 编码
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.5.1'
 }

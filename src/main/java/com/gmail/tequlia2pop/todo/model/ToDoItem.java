@@ -10,7 +10,12 @@ package com.gmail.tequlia2pop.todo.model;
 public class ToDoItem implements Comparable<ToDoItem> {
 
 	private Long id;
+	
 	private String name;
+	
+	/**
+	 * 项目是否已完成。
+	 */
 	private boolean completed;
 
 	public Long getId() {

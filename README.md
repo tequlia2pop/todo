@@ -18,9 +18,9 @@
 
 ## 实现
 
-该版本实现由命令行控制的基本功能。程序将向用户展现一个命令菜单，用户通过菜单输入字符触发一个指定操作来管理 to-do 列表。
+这里将上一版的应用程序转换为一个 Web 应用。
 
-为了保证第一轮迭代的解决方案尽可能的简单，我们不会引入数据库来存储数据，而是将它保存在内存里。
+为了尽可能简单，这里使用了标准的 Java 企业级 Web 组件 Servlet 和 JSP 来构建 Web 应用程序。另外，为了给用户一个流畅和舒适的体验，这里把 to-do 列表做成一个单页面应用。
 
 该应用所使用的组件如下：
 
@@ -30,12 +30,10 @@
 
 *   `InMemoryToDoRepository` 基于内存的仓库实现类，它将所有的 to-do 项目放在 ConcurrentHashMap 实例中。
 
-*   `CommandLineInput` 表示一组操作命令的枚举类。
+*   `ToDoServlet` 类负责接收 HTTP 请求，执行一个映射到某个 URL 的增删改查操作，并将请求转发到一个 JSP 页面。
 
-*   `CommandLineInputHandler` 负责处理用户交互与命令执行。
+*   `todo-list.jsp` 该页面知道该如何动态地渲染 to-do 项目列表，并且提供像按钮一样的 UI 元素和链接启动增删改查操作。
 
-*   `ToDoApp` 应用程序入口。
+下图显示了在新系统中获取和渲染所有的 to-do 项目的流程。用户通过浏览器发起一个 HTTP 请求，由 Servlet 提供服务，并将结果通过 JSP 渲染出来。
 
-下图说明了用户想要列出所有任务所需要执行的操作：
-
-![](doc/images/listing-all-avaliable-tasks-represented-as-a-sequence-diagram.jpg)
+![](doc/images/finding-all-to-do-items-use-case.jpg)
