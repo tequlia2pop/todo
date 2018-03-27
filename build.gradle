@@ -1,14 +1,29 @@
 allprojects {
     group = 'com.gmail.tequlia2pop'
-    version = '0.3'
+    version = '0.4'
 }
 
 subprojects {
     apply plugin: 'java'
+    
+    repositories {
+	    mavenLocal()
+	    mavenCentral()
+	}
 	
 	// 编译 Java 文件时采用 UTF-8 编码
 	tasks.withType(JavaCompile) {
 		options.encoding = 'UTF-8'
+	}
+	
+	// 控制测试日志
+	tasks.withType(Test) {
+		testLogging {
+			// 记录标准输出和错误
+		    showStandardStreams = true
+		    // 显示全部的异常跟踪栈信息
+		    exceptionFormat 'full'
+		}
 	}
 }
 

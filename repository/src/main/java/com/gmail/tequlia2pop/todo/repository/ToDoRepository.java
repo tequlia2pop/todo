@@ -11,6 +11,10 @@ import com.gmail.tequlia2pop.todo.model.ToDoItem;
  */
 public interface ToDoRepository {
 	List<ToDoItem> findAll();
+	
+	List<ToDoItem> findAllActive();
+
+    List<ToDoItem> findAllCompleted();
 
 	ToDoItem findById(Long id);
 

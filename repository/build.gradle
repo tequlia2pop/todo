@@ -1,3 +1,73 @@
+apply from: 'databaseSetup.gradle'
+
+apply plugin: 'groovy'
+
 dependencies {
 	compile project(':model')
+	runtime "com.h2database:h2:$h2Version"
+    testCompile "org.codehaus.groovy:groovy:$groovyVersion"
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.testng:testng:$testngVersion"
+    testCompile "org.spockframework:spock-core:$spockVersion"
 }
+
+sourceSets {
+	// 集成测试 source set
+    integrationTest {
+    	// 集成测试源目录
+        java.srcDir file('src/integTest/java')
+        groovy.srcDir file('src/integTest/groovy')
+        // 集成测试资源目录
+        resources.srcDir file('src/integTest/resources')
+        // 指定编译时 classpath，包括产品代码类和所有指派给 testRuntime 配置的依赖
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        // 指定运行时 classpath，包括编译的集成测试类和编译时 classpath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+// 测试 task 执行顺序：
+// ... -> testNG -> test -> aggregateTestReports
+// -> startDatabase -> buildSchema -> integrationTest -> stopDatabase -> check -> ...
+
+// 用于执行 TestNG 测试的增强 task
+task testNG(type: Test) {
+    useTestNG()
+}
+
+// 修改默认的 test task：指定单元测试报告的输出目录
+test {
+	reports.html.destination = file("$buildDir/reports/unit")
+}
+
+// 用于集成测试的增强 task
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    
+    // 使用集成测试 source set 来指定测试类的目录，以及执行测试所需的 classpath
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    
+    // 指定集成测试报告的输出目录
+    reports.html.destination = file("$buildDir/reports/integration")
+    
+    dependsOn startAndPrepareDatabase
+    finalizedBy stopDatabase
+    // mustRunAfter test
+}
+
+// 用于汇集测试报告的增强 task
+task aggregateTestReports(type: TestReport) {
+    destinationDir = test.reports.html.destination
+    reportOn test, testNG
+}
+
+// 使 testNG task 作为 test task 的依赖
+test.dependsOn testNG
+
+// 使 aggregateTestReports task 作为 check task 的依赖
+check.dependsOn aggregateTestReports
+
+// 使 integrationTest task 作为  check task 的依赖
+check.dependsOn integrationTest

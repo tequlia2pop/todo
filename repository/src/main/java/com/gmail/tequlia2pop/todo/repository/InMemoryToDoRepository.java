@@ -15,44 +15,70 @@ import com.gmail.tequlia2pop.todo.model.ToDoItem;
  * @author tequlia2pop
  */
 public class InMemoryToDoRepository implements ToDoRepository {
-	
+
 	/**
 	 * 线程安全的标识符序列号。
 	 */
-    private AtomicLong currentId = new AtomicLong();
-    
-    /**
-     * 用来保存 to-do 项目的有效内存结构。
-     */
-    private ConcurrentMap<Long, ToDoItem> toDos = new ConcurrentHashMap<>();
+	private AtomicLong currentId = new AtomicLong();
 
-    @Override
-    public List<ToDoItem> findAll() {
-        List<ToDoItem> toDoItems = new ArrayList<>(toDos.values());
-        Collections.sort(toDoItems);
-        return toDoItems;
-    }
+	/**
+	 * 用来保存 to-do 项目的有效内存结构。
+	 */
+	private ConcurrentMap<Long, ToDoItem> toDos = new ConcurrentHashMap<>();
 
-    @Override
-    public ToDoItem findById(Long id) {
-        return toDos.get(id);
-    }
+	@Override
+	public List<ToDoItem> findAll() {
+		List<ToDoItem> toDoItems = new ArrayList<>(toDos.values());
+		Collections.sort(toDoItems);
+		return toDoItems;
+	}
 
-    @Override
-    public Long insert(ToDoItem toDoItem) {
-        Long id = currentId.incrementAndGet();
-        toDoItem.setId(id);
-        toDos.putIfAbsent(id, toDoItem);
-        return id;
-    }
+	@Override
+	public List<ToDoItem> findAllActive() {
+		List<ToDoItem> activeToDos = new ArrayList<>();
+		synchronized (toDos) {
+			for (ToDoItem toDoItem : toDos.values()) {
+				if (!toDoItem.isCompleted()) {
+					activeToDos.add(toDoItem);
+				}
+			}
+		}
+		return activeToDos;
+	}
 
-    @Override
-    public void update(ToDoItem toDoItem) {
-        toDos.replace(toDoItem.getId(), toDoItem);
-    }
+	@Override
+	public List<ToDoItem> findAllCompleted() {
+		List<ToDoItem> completedToDos = new ArrayList<>();
+		synchronized (toDos) {
+			for (ToDoItem toDoItem : toDos.values()) {
+				if (toDoItem.isCompleted()) {
+					completedToDos.add(toDoItem);
+				}
+			}
+		}
+		return completedToDos;
+	}
 
-    @Override
-    public void delete(ToDoItem toDoItem) {
-        toDos.remove(toDoItem.getId());
-    }
+	@Override
+	public ToDoItem findById(Long id) {
+		return toDos.get(id);
+	}
+
+	@Override
+	public Long insert(ToDoItem toDoItem) {
+		Long id = currentId.incrementAndGet();
+		toDoItem.setId(id);
+		toDos.putIfAbsent(id, toDoItem);
+		return id;
+	}
+
+	@Override
+	public void update(ToDoItem toDoItem) {
+		toDos.replace(toDoItem.getId(), toDoItem);
+	}
+
+	@Override
+	public void delete(ToDoItem toDoItem) {
+		toDos.remove(toDoItem.getId());
+	}
 }
